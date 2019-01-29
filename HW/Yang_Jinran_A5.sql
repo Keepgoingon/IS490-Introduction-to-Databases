@@ -1,0 +1,190 @@
+CREATE TABLE A5_PERSON
+   (PersonID NUMBER(20) NOT NULL,
+    lastNM  VARCHAR2(20),
+    firstNM VARCHAR2(20),
+    homePH  INT,
+    workPH  INT,
+    email VARCHAR2(20),
+    streetNAME VARCHAR2(40),
+    City  VARCHAR2(20),
+    State VARCHAR2(20),
+    ZIP  INT,
+    StreetNumber VARCHAR2(20),
+    PRIMARY KEY(PersonID));
+grant select on A5_PERSON to GSLISDM
+grant select on A5_PERSON to jguo24
+
+CREATE TABLE A5_EMPLOYEE
+  (PersonID NUMBER(20) NOT NULL,
+   startDT  DATE,
+   endDT  DATE,
+   birthDT  DATE,
+   type int,
+   PRIMARY KEY(PersonID),
+   FOREIGN KEY(PersonID) REFERENCES A5_PERSON (PersonID)ON DELETE CASCADE);
+grant select on A5_EMPLOYEE to GSLISDM
+grant select on A5_EMPLOYEE to jguo24
+
+
+CREATE TABLE A5_CONTACT
+   (PersonID NUMBER(20) NOT NULL,
+    supplierID NUMBER(20),
+    PRIMARY KEY(PersonID),
+    FOREIGN KEY (PersonID) REFERENCES A5_PERSON(PersonID)ON DELETE CASCADE,
+    FOREIGN KEY (supplierID)REFERENCES A5_SUPPLIER(supplierID)ON DELETE CASCADE);
+grant select on A5_CONTACT to GSLISDM
+grant select on A5_CONTACT to jguo24
+
+
+
+CREATE TABLE A5_PROJECT
+   (ProjectID NUMBER(20) NOT NULL,
+    isInside VARCHAR2(20),
+    createDT DATE,
+    description VARCHAR2(200),
+    PersonID NUMBER(20),
+    com_ProjectID NUMBER(20),
+    PRIMARY KEY(ProjectID));
+ALTER TABLE A5_PROJECT ADD CONSTRAINT A5_PROJECT_FK_PersonID FOREIGN KEY (PersonID) REFERENCES A5_PERSON(PersonID);
+ALTER TABLE A5_PROJECT ADD CONSTRAINT A5_PROJECT_FK_com_PersonID FOREIGN KEY (com_ProjectID) REFERENCES A5_PARTOF(com_ProjectID);
+grant select on A5_PROJECT to GSLISDM
+grant select on A5_PROJECT to jguo24
+
+
+CREATE TABLE A5_CORPPRATE
+    (PersonID NUMBER(20) NOT NULL,
+     discountRATE NUMERIC,
+     PRIMARY KEY(PersonID),
+     FOREIGN KEY (PersonID) REFERENCES A5_PERSON(PersonID)ON DELETE CASCADE);
+grant select on A5_CORPPRATE to GSLISDM
+grant select on A5_CORPPRATE to jguo24
+
+
+CREATE TABLE A5_RESIDENTIAL
+   (PersonID NUMBER(20) NOT NULL,
+    birthID DATE,
+    markstSector VARCHAR2(200),
+    PRIMARY KEY(PersonID),
+    FOREIGN KEY (PersonID) REFERENCES A5_PERSON(PersonID)ON DELETE CASCADE);
+grant select on A5_RESIDENTIAL to GSLISDM
+grant select on A5_RESIDENTIAL to jguo24
+
+CREATE TABLE A5_SUPPLIER
+    (supplierID NUMBER(20) NOT NULL,
+     isPreferred  VARCHAR2(20),
+     supplierNM  VARCHAR2(20),
+     PRIMARY KEY(supplierID));
+grant select on A5_SUPPLIER to GSLISDM
+grant select on A5_SUPPLIER to jguo24
+
+CREATE TABLE A5_RESOURCE
+    (resourceID NUMBER(20) NOT NULL,
+     description VARCHAR2(200),
+      PRIMARY KEY(resourceID));
+grant select on A5_RESOURCE to GSLISDM
+grant select on A5_RESOURCE to jguo24
+
+CREATE TABLE A5_SERVICE
+    (resourceID NUMBER(20) NOT NULL,
+     serviceShortNM  VARCHAR2(200),
+     PRIMARY KEY(resourceID),
+     FOREIGN KEY (resourceID) REFERENCES A5_RESOURCE(resourceID)ON DELETE CASCADE);
+grant select on A5_SERVICE to GSLISDM
+grant select on A5_SERVICE to jguo24
+
+CREATE TABLE A5_MATERIAL
+   (resourceID NUMBER(20) NOT NULL,
+    minUnitStock  VARCHAR2(20),
+    PRIMARY KEY(resourceID),
+    FOREIGN KEY (resourceID) REFERENCES A5_RESOURCE(resourceID)ON DELETE CASCADE);
+grant select on A5_MATERIA to GSLISDM
+grant select on A5_MATERIA to jguo24
+
+CREATE TABLE A5_JOB
+   (jobID NUMBER(20) NOT NULL,
+    ProjectID NUMBER(20) NOT NULL,
+    PersonID NUMBER(20) NOT NULL,
+    resourceID NUMBER(20) NOT NULL,
+    actualCost VARCHAR2(20),
+    endDT DATE,
+    startDT DATE,
+    estimatedCost VARCHAR2(20),
+    PRIMARY KEY(jobID,ProjectID,PersonID,resourceID),
+    FOREIGN KEY (ProjectID) REFERENCES A5_PROJECT(ProjectID)ON DELETE CASCADE,
+    FOREIGN KEY (PersonID) REFERENCES A5_EMPLOYEE(PersonID)ON DELETE CASCADE,
+    FOREIGN KEY (resourceID) REFERENCES A5_SERVICE(resourceID)ON DELETE CASCADE);
+grant select on A5_JOB to GSLISDM
+grant select on A5_JOB to jguo24
+
+CREATE TABLE A5_PARTOF
+    (com_ProjectID NUMBER(20) NOT NULL,
+    indivi_ProjectID NUMBER(20) NOT NULL,
+    PRIMARY KEY(com_ProjectID,indivi_ProjectID),
+    FOREIGN KEY(com_ProjectID) REFERENCES A5_PROJECT(ProjectID)ON DELETE CASCADE,
+    FOREIGN KEY(indivi_ProjectID) REFERENCES A5_PROJECT(ProjectID)ON DELETE CASCADE);
+grant select on A5_PARTOF to GSLISDM
+grant select on A5_PARTOF to jguo24
+
+CREATE TABLE A5_PCONTACT
+   (EM_PersonID NUMBER(20) NOT NULL,
+   CUST_PersonID NUMBER(20) NOT NULL,
+   assignDT DATE NOT NULL,
+   PRIMARY KEY(EM_PersonID, CUST_PersonID),
+   FOREIGN KEY(EM_PersonID) REFERENCES A5_EMPLOYEE (PersonID),
+   FOREIGN KEY(CUST_PersonID)  REFERENCES A5_PERSON (PersonID)ON DELETE CASCADE);
+grant select on A5_PCONTACT to GSLISDM
+grant select on A5_PCONTACT to jguo24
+
+CREATE TABLE A5_SKILLEDIN
+  (PersonID NUMBER(20) NOT NULL,
+   resourceID NUMBER (20) NOT NULL,
+   certNM  VARCHAR2(20),
+   certDT DATE,
+   PRIMARY KEY (PersonID, resourceID),
+   FOREIGN KEY(PersonID) REFERENCES A5_EMPLOYEE (PersonID)ON DELETE CASCADE,
+   FOREIGN KEY(resourceID)REFERENCES  A5_SERVICE(resourceID)ON DELETE CASCADE);
+grant select on A5_SKILLEDIN to GSLISDM
+grant select on A5_SKILLEDIN to jguo24
+
+CREATE TABLE A5_REQUIRES
+   (ProjectID NUMBER(20) NOT NULL,
+    resourceID NUMBER (20) NOT NULL,
+    PRIMARY KEY (ProjectID, resourceID),
+    FOREIGN KEY(ProjectID) REFERENCES A5_PROJECT(ProjectID)ON DELETE CASCADE,
+    FOREIGN KEY(resourceID)REFERENCES  A5_RESOURCE(resourceID)ON DELETE CASCADE);
+grant select on A5_REQUIRES to GSLISDM
+grant select on A5_REQUIRES to jguo24
+
+CREATE TABLE A5_SOURCEDFROM
+   (PersonID NUMBER(20) NOT NULL,
+    resourceID NUMBER (20) NOT NULL ,
+    restockDT DATE,
+    Cost VARCHAR2(20),
+    PRIMARY KEY (PersonID, resourceID),
+    FOREIGN KEY(PersonID) REFERENCES A5_SUPPLIER(supplierID)ON DELETE CASCADE,
+    FOREIGN KEY(resourceID)REFERENCES  A5_MATERIAL(resourceID)ON DELETE CASCADE);
+grant select on A5_SOURCEDFROM to GSLISDM
+grant select on A5_SOURCEDFROM to jguo24
+
+CREATE TABLE A5_LOCATION
+   (LOCATION VARCHAR2(200) NOT NULL,
+    ProjectID NUMBER(20) NOT NULL,
+    PRIMARY KEY (LOCATION, ProjectID),
+    FOREIGN KEY(ProjectID)REFERENCES  A5_PROJECT(ProjectID)ON DELETE CASCADE);
+grant select on A5_LOCATION to GSLISDM
+grant select on A5_LOCATION to jguo24
+
+
+CREATE TABLE A5_RETURN
+   (ProjectID NUMBER(20) NOT NULL,
+    resourceID NUMBER (20) NOT NULL,
+    PersonID NUMBER(20) NOT NULL,
+    returnDT DATE,
+    reason VARCHAR2(200),
+    PRIMARY KEY(ProjectID,resourceID,PersonID),
+    FOREIGN KEY(ProjectID)REFERENCES  A5_PROJECT(ProjectID),
+    FOREIGN KEY(PersonID)REFERENCES  A5_PERSON(PersonID),
+    FOREIGN KEY(resourceID)REFERENCES A5_MATERIAL(resourceID));
+grant select on A5_RETURN to GSLISDM
+grant select on A5_RETURN to jguo24
+
